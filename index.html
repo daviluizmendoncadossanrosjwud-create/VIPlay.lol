@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GTA 6 Intro</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    #player {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Evita cliques acidentais pausando o vídeo */
+    }
+
+    #btn-som {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 10;
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(15, 15, 20, 0.75);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    #btn-som:active {
+      transform: scale(0.95);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="player"></div>
+  <button id="btn-som">🔊 Ativar Som</button>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    let player;
+    const btnSom = document.getElementById('btn-som');
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        videoId: 'q82G5FUaHf0',
+        playerVars: {
+          autoplay: 1,
+          mute: 1,          // Inicia mudo para o navegador nunca travar o vídeo
+          start: 0,
+          end: 15,
+          controls: 0,      // Esconde barra do YouTube
+          playsinline: 1,   // Evita abrir player nativo no celular
+          rel: 0,
+          modestbranding: 1
+        },
+        events: {
+          onReady: (event) => {
+            event.target.playVideo();
+            // Tenta liberar o som automaticamente se o navegador permitir
+            setTimeout(() => {
+              event.target.unMute();
+              event.target.setVolume(100);
+              if (!event.target.isMuted()) {
+                btnSom.style.display = 'none';
+              }
+            }, 300);
+          }
+        }
+      });
+    }
+
+    // Libera o som instantaneamente no clique/toque sem engasgar
+    function ativarSom() {
+      if (player && typeof player.unMute === 'function') {
+        player.unMute();
+        player.setVolume(100);
+        if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+          player.playVideo();
+        }
+        btnSom.style.display = 'none';
+      }
+    }
+
+    btnSom.addEventListener('click', ativarSom);
+    document.body.addEventListener('touchstart', ativarSom, { once: true });
+    document.body.addEventListener('click', ativarSom, { once: true });
+  </script>
+</body>
+</html>
